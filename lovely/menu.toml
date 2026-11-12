@@ -1,0 +1,44 @@
+
+[manifest]
+version = "1.2"
+dump_lua = true
+priority = 100
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = """function G.UIDEF.run_setup(from_game_over)"""
+position = "before"
+payload = '''
+function G.FUNCS.escapism_back(from_game_over) 
+    G.STATE_COMPLETE = false
+end
+'''
+match_indent = true
+
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = """  local t =   create_UIBox_generic_options({no_back = from_game_over, no_esc = from_game_over, contents ={"""
+position = "at"
+payload = '''  local t =   create_UIBox_generic_options({back_func = from_game_over and 'escapism_back', contents ={'''
+match_indent = true
+
+
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = """            if not G.GAME.seeded and not G.GAME.challenge then"""
+position = "after"
+payload = '''if not G.GAME.lost_counted then
+    G.GAME.lost_counted = true'''
+match_indent = true
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = """        play_sound('negative', 0.5, 0.7)
+        play_sound('whoosh2', 0.9, 0.7)"""
+position = "before"
+payload = '''end'''
+match_indent = true
